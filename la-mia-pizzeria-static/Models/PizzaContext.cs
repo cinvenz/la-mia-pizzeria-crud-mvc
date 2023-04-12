@@ -6,12 +6,16 @@ namespace la_mia_pizzeria_static.Models
 {
     public class PizzaContext : DbContext
     {
-        public DbSet<Pizza> Pizze { get; set; }
+        public const string ConnectionString = "Data Source=localhost;Initial Catalog=PizzaDati;Integrated Security=True;TrustServerCertificate=True";
+        public PizzaContext(DbContextOptions<PizzaContext> options) : base(options) { }
+        public PizzaContext() {}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=PizzaDati;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(ConnectionString);
         }
+
+        public DbSet<Pizza> Pizze { get; set; }
 
         public void Seed()
         {

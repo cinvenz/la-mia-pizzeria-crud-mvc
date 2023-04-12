@@ -9,16 +9,16 @@ namespace la_mia_pizzeria_static.Controllers
     public class PizzaController : Controller
     {
         private readonly ILogger<PizzaController> _logger;
-
-        public PizzaController(ILogger<PizzaController> logger)
+        private readonly PizzaContext _context;
+        public PizzaController(ILogger<PizzaController> logger, PizzaContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
         {
-            using var ctx = new PizzaContext();
-            var pizze = ctx.Pizze.ToArray();
+            var pizze = _context.Pizze.ToArray();
 
             return View(pizze);
         }
@@ -30,7 +30,8 @@ namespace la_mia_pizzeria_static.Controllers
 
             if (pizze is null)
             {
-                return NotFound($"Pizza with id {id} not found.");
+                return View("NotFound", "Post not found.");
+                //return NotFound($"Pizza with id {id} not found.");
             }
 
             return View(pizze);

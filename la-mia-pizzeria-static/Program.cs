@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSqlServer<PizzaContext>(PizzaContext.ConnectionString);
 
 var app = builder.Build();
 
@@ -26,9 +27,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Pizza}/{action=Index}/{id?}");
 
+
 using (var ctx = new PizzaContext())
 {
-    ctx.Seed();
+    ctx!.Seed();
 }
 
 app.Run();

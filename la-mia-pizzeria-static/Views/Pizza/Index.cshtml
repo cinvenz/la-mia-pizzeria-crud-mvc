@@ -16,7 +16,10 @@
 <body>
     
     <h1 class="text-center text-danger">Pizze presenti nel menu</h1>
-    <a href="@Url.Action("Create", "Pizza")">Crea nuova pizza</a>
+    <div class="text-center pb-3">
+        <a href="@Url.Action("Create", "Pizza")">Crea nuova pizza</a>
+    </div>
+    
     <div class="container d-flex gap-4">
     @if (pizze.Length is 0)
     {

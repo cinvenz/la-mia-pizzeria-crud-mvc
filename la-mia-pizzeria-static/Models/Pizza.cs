@@ -18,12 +18,23 @@ using System.ComponentModel.DataAnnotations;
 		public string Description { get; set; }
 
 		[Required(ErrorMessage = "Inserisci un immagine per la Pizza.")]
-		public string Image { get; set; }
+        public string Image { get; set; } = string.Empty;
 
-		[Required(ErrorMessage = "inserisci un prezzo per la pizza.")]
+        public byte[]? ImageFile { get; set; }
+
+        public string ImgSrc => ImageFile is null
+            ? Image
+            : $"data:image/png;base64,{Convert.ToBase64String(ImageFile)}";
+
+
+        [Required(ErrorMessage = "inserisci un prezzo per la pizza.")]
 		[Range(1, 100, ErrorMessage = "Il prezzo deve essere compreso tra 1 e 100 euro.")]
 		public double Price { get; set; }
-	}
+
+        [NonZero(ErrorMessage = "Scegli una categoria.")]
+        public int CategoryId { get; set; }
+        public Category? Category { get; set; }
+    }
 }
 
 

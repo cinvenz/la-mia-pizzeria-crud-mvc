@@ -18,10 +18,11 @@ namespace la_mia_pizzeria_static.Controllers
 
         public IActionResult Index()
         {
-            var pizze = _context.Pizze.ToArray();
+            var pizze = _context.Pizze.Include(p => p.Category).ToArray();
 
             return View(pizze);
         }
+
 
         public IActionResult Detail(int id)
         {
@@ -39,28 +40,48 @@ namespace la_mia_pizzeria_static.Controllers
 
         public IActionResult Create()
         {
-            var pizza = new Pizza
+            //var pizza = new Pizza
+            //{
+            //    Image = "https://picsum.photos/200/300"
+            //};
+
+            //return View(pizza);
+            
+            var formModel = new PizzaFormModel
             {
-                Image = "https://picsum.photos/200/300"
+                Categories = _context.Categories.ToArray(),
             };
 
-            return View(pizza);
+            return View(formModel);
+            
         }
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Create(Pizza pizza)
+		public IActionResult Create(PizzaFormModel form)
 		{
-			if (!ModelState.IsValid)
-			{
-				return View(pizza);
-			}
+            //if (!ModelState.IsValid)
+            //{
+            //	return View(pizza);
+            //}
 
-			using var ctx = new PizzaContext();
-            ctx.Pizze.Add(pizza);   
-            ctx.SaveChanges();  
-            return RedirectToAction("Index");   
-		}
+            //using var ctx = new PizzaContext();
+            //         ctx.Pizze.Add(pizza);   
+            //         ctx.SaveChanges();  
+            //         return RedirectToAction("Index");
+        if (!ModelState.IsValid)
+        {
+            form.Categories = _context.Categories.ToArray();
+            return View(form);
+        }
+
+        form.SetImageFileFromFormFile();
+
+        _context.Pizze.Add(form.Pizza);
+        _context.SaveChanges();
+
+        return RedirectToAction("Index");
+        }
 
 		public IActionResult Update(int id)
 		{

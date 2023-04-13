@@ -91,34 +91,44 @@ namespace la_mia_pizzeria_static.Controllers
 			{
 				return View("NotFound");
 			}
+            var formModel = new PizzaFormModel
+            {
+                Pizza = pizza,
+                Categories = _context.Categories.ToArray()
+            };
 
-			return View(pizza);
+            return View(formModel);
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Update(int id, Pizza post)
+		public IActionResult Update(int id, PizzaFormModel form)
 		{
 			if (!ModelState.IsValid)
 			{
-				return View(post);
+                form.Categories = _context.Categories.ToArray();
+                return View(form);
 			}
 
 
-
-            var pizzaToUpdate = _context.Pizze.FirstOrDefault(p => p.Id == id);
+            var pizzaToUpdate = _context.Pizze.AsNoTracking().FirstOrDefault(p => p.Id == id);
 
             if (pizzaToUpdate is null)
             {
                 return View("NotFound");
             }
 
-			pizzaToUpdate.Name = post.Name;
-			pizzaToUpdate.Description = post.Description;
-			pizzaToUpdate.Image = post.Image;
-			pizzaToUpdate.Price = post.Price;
+            //form.Pizza.Name = pizzaToUpdate.Name;
+            //form.Pizza.Description = pizzaToUpdate.Description;
+            //form.Pizza.Price = pizzaToUpdate.Price;
+            //form.Pizza.Category = pizzaToUpdate.Category;
+            form.Pizza.ImageFile = pizzaToUpdate.ImageFile;
+            form.SetImageFileFromFormFile();
 
-			_context.SaveChanges();
+      
+
+            _context.Pizze.Update(form.Pizza);
+            _context.SaveChanges();
 
             return RedirectToAction("Index");
 		}

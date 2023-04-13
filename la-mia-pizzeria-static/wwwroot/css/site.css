@@ -27,8 +27,14 @@ img{
     object-fit: cover;
 }
 
+.container-card {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .card {
     height: 24rem !important;
+    flex-basis: 33%;
 }
 
 .pad {

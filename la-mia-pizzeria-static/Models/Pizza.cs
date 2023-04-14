@@ -34,6 +34,8 @@ using System.ComponentModel.DataAnnotations;
         [NonZero(ErrorMessage = "Scegli una categoria.")]
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
+
+		public IEnumerable<Ingredient>? Ingredients { get; set; }	
     }
 }
 

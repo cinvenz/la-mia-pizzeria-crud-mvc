@@ -10,5 +10,13 @@
         <h5 class="card-title  ms-lg-3"><a href="@Url.Action("Detail", "Pizza", new { Id = pizza.Id })">@pizza.Name</a></h5>
         <p class="card-text  ms-lg-3">@pizza.Description</p>
         <h6 class="ms-lg-3">@pizza.Price $</h6>
+        
+        <h6>Ingredients:</h6>
+        <div>
+            @foreach (var Ingredient in pizza.Ingredients!)
+            {
+                <span>@Ingredient.Title</span>
+            }
+        </div>
     </div>
 </div>

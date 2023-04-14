@@ -17,7 +17,7 @@ namespace la_mia_pizzeria_static.Models
 
         public DbSet<Pizza> Pizze { get; set; }
         public DbSet<Category> Categories { get; set; }
-
+        public DbSet<Ingredient> Ingredients { get; set; }
         public void Seed()
         {
             
@@ -71,21 +71,47 @@ namespace la_mia_pizzeria_static.Models
                     new()
                     {
                         Title = "Pizze bianche",
-                        Pizze = pizzaSeed,
+                        
                     },
                      new()
                     {
                         Title = "Pizze vegetariane",
-                        Pizze = pizzaSeed,
+                        
                     },
                       new()
                     {
                         Title = "Pizze di mare",
-                        Pizze = pizzaSeed,
+                        
                     },
                 };
 
                 Categories.AddRange(seed);
+            }
+
+            if (!Ingredients.Any())
+            {
+                var seed = new Ingredient[]
+                {
+                    new()
+                    {
+                        Title = "Salame",
+                        
+                    },
+                    new()
+                    {
+                        Title = "Pepe",
+                    },
+                     new()
+                    {
+                        Title = "Salsiccia",
+                        Pizze = pizzaSeed,
+                    },
+                      new()
+                    {
+                        Title = "Rucola",
+                    },
+                };
+                Ingredients.AddRange(seed);
             }
             SaveChanges();
         }

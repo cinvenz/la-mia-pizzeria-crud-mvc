@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Hosting;
 
 namespace la_mia_pizzeria_static.Models
 {
@@ -8,6 +9,9 @@ namespace la_mia_pizzeria_static.Models
         public IFormFile? ImageFormFile { get; set; }
         public IEnumerable<Category> Categories { get; set; } = Enumerable.Empty<Category>();
 
+
+        public IEnumerable<SelectListItem> Ingredients { get; set; } = Enumerable.Empty<SelectListItem>();
+        public List<string> SelectedIngredients { get; set; } = new();
         public void SetImageFileFromFormFile()
         {
             if (ImageFormFile is null) return;

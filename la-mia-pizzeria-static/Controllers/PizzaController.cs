@@ -1,5 +1,6 @@
 ﻿using la_mia_pizzeria_static.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
@@ -26,10 +27,12 @@ namespace la_mia_pizzeria_static.Controllers
 
         public IActionResult Detail(int id)
         {
-            using var ctx = new PizzaContext();
-            var pizze = ctx.Pizze.SingleOrDefault(p => p.Id == id);
+			var pizze = _context.Pizze
+			   .Include(p => p.Category)
+			   .Include(p => p.Ingredients)
+			   .SingleOrDefault(p => p.Id == id);
 
-            if (pizze is null)
+			if (pizze is null)
             {
                 return View("NotFound", "Post not found.");
                 //return NotFound($"Pizza with id {id} not found.");
@@ -50,6 +53,7 @@ namespace la_mia_pizzeria_static.Controllers
             var formModel = new PizzaFormModel
             {
                 Categories = _context.Categories.ToArray(),
+                Ingredients = _context.Ingredients.Select(i => new SelectListItem(i.Title, i.Id.ToString())).ToArray(),
             };
 
             return View(formModel);
@@ -72,12 +76,14 @@ namespace la_mia_pizzeria_static.Controllers
         if (!ModelState.IsValid)
         {
             form.Categories = _context.Categories.ToArray();
-            return View(form);
+				form.Ingredients = _context.Ingredients.Select(i => new SelectListItem(i.Title, i.Id.ToString())).ToArray();
+				return View(form);
         }
 
         form.SetImageFileFromFormFile();
+		form.Pizza.Ingredients = form.SelectedIngredients.Select(st => _context.Ingredients.First(i => i.Id == Convert.ToInt32(st))).ToList();
 
-        _context.Pizze.Add(form.Pizza);
+		_context.Pizze.Add(form.Pizza);
         _context.SaveChanges();
 
         return RedirectToAction("Index");
@@ -85,7 +91,7 @@ namespace la_mia_pizzeria_static.Controllers
 
 		public IActionResult Update(int id)
 		{
-			var pizza = _context.Pizze.FirstOrDefault(p => p.Id == id);
+			var pizza = _context.Pizze.Include(p => p.Ingredients).FirstOrDefault(p => p.Id == id);
 
 			if (pizza is null)
 			{
@@ -94,10 +100,16 @@ namespace la_mia_pizzeria_static.Controllers
             var formModel = new PizzaFormModel
             {
                 Pizza = pizza,
-                Categories = _context.Categories.ToArray()
-            };
+                Categories = _context.Categories.ToArray(),
+				Ingredients = _context.Ingredients.ToArray().Select(t => new SelectListItem(
+				    t.Title,
+				    t.Id.ToString(),
+				    pizza.Ingredients!.Any(_i => _i.Id == t.Id))
+			).ToArray()
+			};
 
-            return View(formModel);
+			formModel.SelectedIngredients = formModel.Ingredients.Where(i => i.Selected).Select(i => i.Value).ToList();
+			return View(formModel);
 		}
 
 		[HttpPost]
@@ -107,28 +119,27 @@ namespace la_mia_pizzeria_static.Controllers
 			if (!ModelState.IsValid)
 			{
                 form.Categories = _context.Categories.ToArray();
-                return View(form);
+				form.Ingredients = _context.Ingredients.Select(i => new SelectListItem(i.Title, i.Id.ToString())).ToArray();
+				return View(form);
 			}
 
 
-            var pizzaToUpdate = _context.Pizze.AsNoTracking().FirstOrDefault(p => p.Id == id);
+            var pizzaToUpdate = _context.Pizze.Include(p =>p.Ingredients).FirstOrDefault(p => p.Id == id);
 
             if (pizzaToUpdate is null)
             {
                 return View("NotFound");
             }
 
-            //form.Pizza.Name = pizzaToUpdate.Name;
-            //form.Pizza.Description = pizzaToUpdate.Description;
-            //form.Pizza.Price = pizzaToUpdate.Price;
-            //form.Pizza.Category = pizzaToUpdate.Category;
-            form.Pizza.ImageFile = pizzaToUpdate.ImageFile;
-            form.SetImageFileFromFormFile();
+			form.SetImageFileFromFormFile();
+			form.Pizza.Name = pizzaToUpdate.Name;
+			form.Pizza.Description = pizzaToUpdate.Description;
+		    form.Pizza.Price = pizzaToUpdate.Price;
+			form.Pizza.Category = pizzaToUpdate.Category;
+			form.Pizza.ImageFile = pizzaToUpdate.ImageFile;
+			pizzaToUpdate.Ingredients = form.SelectedIngredients.Select(st => _context.Ingredients.First(i => i.Id == Convert.ToInt32(st))).ToList();
 
-      
-
-            _context.Pizze.Update(form.Pizza);
-            _context.SaveChanges();
+			_context.SaveChanges();
 
             return RedirectToAction("Index");
 		}

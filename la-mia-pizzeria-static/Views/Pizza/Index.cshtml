@@ -5,35 +5,32 @@
 }
 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pizzeria</title>
-</head>
-<body>
-    
-    <h1 class="text-center text-danger">Pizze presenti nel menu</h1>
-    <div class="text-center pb-3">
-        <a href="@Url.Action("Create", "Pizza")">Crea nuova pizza</a>
+@if (User.IsInRole("Admin"))
+{
+    <div class="pad">
+        <a href="@Url.Action("Create", "Pizza")">New post</a>
     </div>
+}
     
-    <div class="container container-card gap-4">
-    @if (pizze.Length is 0)
+<h1 class="text-center text-danger">Pizze presenti nel menu</h1>
+<div class="text-center pb-3">
+    <a href="@Url.Action("Create", "Pizza")">Crea nuova pizza</a>
+</div>
+    
+<div class="container container-card gap-4">
+@if (pizze.Length is 0)
+{
+    <p>No Pizze to display :\</p>
+}
+else
+{
+    @foreach (var pizza in pizze)
     {
-        <p>No Pizze to display :\</p>
-    }
-    else
-    {
-        @foreach (var pizza in pizze)
-        {
 
-                @await Html.PartialAsync("_PizzaRow", pizza);
-        }
+            @await Html.PartialAsync("_PizzaRow", pizza);
     }
-    </div>
+}
+</div>
     
 
    @* <div class="container d-flex gap-4">
@@ -111,7 +108,6 @@
             <td class="price">5.50 euro</td>
         </tr>
     </table>*@
-</body>
-</html>
+
 
 

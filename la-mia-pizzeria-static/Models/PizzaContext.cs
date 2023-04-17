@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace la_mia_pizzeria_static.Models
 {
-    public class PizzaContext : DbContext
-    {
+    public class PizzaContext : IdentityDbContext<IdentityUser>
+	{
         public const string ConnectionString = "Data Source=localhost;Initial Catalog=PizzaDati;Integrated Security=True;TrustServerCertificate=True";
         public PizzaContext(DbContextOptions<PizzaContext> options) : base(options) { }
         public PizzaContext() {}
@@ -112,6 +114,44 @@ namespace la_mia_pizzeria_static.Models
                     },
                 };
                 Ingredients.AddRange(seed);
+            }
+
+            if (!Roles.Any())
+            {
+                var seed = new IdentityRole[]
+                {
+                    new("Admin"),
+                    new("User")
+                };
+
+                Roles.AddRange(seed);
+            }
+
+
+            if (Users.Any(u => u.Email == "admin@dev.com" || u.Email == "user@dev.com")
+                && !UserRoles.Any())
+            {
+                var admin = Users.First(u => u.Email == "admin@dev.com");
+                var user = Users.First(u => u.Email == "user@dev.com");
+
+                var adminRole = Roles.First(r => r.Name == "Admin");
+                var userRole = Roles.First(r => r.Name == "User");
+
+                var seed = new IdentityUserRole<string>[]
+                {
+                    new()
+                    {
+                        UserId = admin.Id,
+                        RoleId = adminRole.Id
+                    },
+                    new()
+                    {
+                        UserId = user.Id,
+                        RoleId = userRole.Id
+                    }
+                };
+
+                UserRoles.AddRange(seed);
             }
             SaveChanges();
         }

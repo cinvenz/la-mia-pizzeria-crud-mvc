@@ -1,10 +1,28 @@
 using la_mia_pizzeria_static.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<PizzaContext>(options =>
+	options.UseSqlServer("Data Source=localhost;Initial Catalog=PizzaDati;Integrated Security=True;TrustServerCertificate=True"));
+
 // Add services to the container.
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+	.AddRoles<IdentityRole>()
+	.AddEntityFrameworkStores<PizzaContext>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+	options.Password.RequireDigit = false;
+	options.Password.RequireLowercase = false;
+	options.Password.RequireNonAlphanumeric = false;
+	options.Password.RequireUppercase = false;
+	options.Password.RequiredLength = 0;
+	options.Password.RequiredUniqueChars = 0;
+});
+
 builder.Services.AddControllersWithViews();
-builder.Services.AddSqlServer<PizzaContext>(PizzaContext.ConnectionString);
 
 var app = builder.Build();
 
@@ -21,13 +39,16 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Pizza}/{action=Index}/{id?}");
 
+app.MapRazorPages();
 
+using (var scope = app.Services.CreateScope())
 using (var ctx = new PizzaContext())
 {
     ctx!.Seed();
